@@ -1,13 +1,9 @@
 import time
 import re
 import pyosd
+from gmail import GmailOsd
 
-BAT_INFO = "/proc/acpi/battery/BAT0/info"
-BAT_STATE = "/proc/acpi/battery/BAT0/state"
-TEMPERATURE = "/proc/acpi/thermal_zone/THM0/temperature"
-CPUSPEED = "/proc/cpuinfo"
-FONT_FACE = "-*-fixed-medium-r-*-*-12-*-*-*-*-*-*-*"
-INTERVAL = 5
+from settings import *
 
 # common regexps
 present_re = re.compile("^present:[ ]+no$")
@@ -17,11 +13,12 @@ temp_re = re.compile("^temperature:[ ]+(?P<temperature>[\d]+) C$")
 cpu_re = re.compile("^cpu MHz[\t ]+: (?P<cpu_speed>[\d]+)[.\d]*$")
 
 def handle():
+    osd_gmail = pyosd.osd()
     osd_batt = pyosd.osd()
     osd_temp = pyosd.osd()
     osd_cpu = pyosd.osd()
 
-    for osd in [ osd_batt, osd_temp, osd_cpu ]:
+    for osd in [ osd_gmail, osd_batt, osd_temp, osd_cpu ]:
         # set common stuff
         osd.set_font(FONT_FACE)
         osd.set_outline_offset(1)
@@ -31,9 +28,14 @@ def handle():
         osd.set_pos(pyosd.POS_TOP)
         osd.set_colour("yellow")
 
+    osd_gmail.set_horizontal_offset(350)
     osd_batt.set_horizontal_offset(230)
     osd_temp.set_horizontal_offset(120)
     osd_cpu.set_horizontal_offset(5)
+
+    # start the GMail thread
+    gmail = GmailOsd(osd_gmail)
+    gmail.start()
 
     while True:
         batt = get_battery_level()
@@ -60,7 +62,6 @@ def handle():
         else:
             osd_temp.set_colour("green")
 
-
         osd_temp.display("Temperature: %d C" % temp)
         osd_cpu.display("CPU Speed: %dMHz" % cpu)
 
@@ -71,7 +72,6 @@ def get_battery_level():
     Returns the % of the battery level or None if the battery
     is not present
     """
-    battery = None
     batt_inserted = True
 
     batt_capacity = 0
@@ -84,7 +84,9 @@ def get_battery_level():
             mo = full_capacity_re.match(line.strip())
             if not mo:
                 continue
+
             batt_capacity = mo.group("capacity")
+
     f.close()
 
     if not batt_inserted:
@@ -100,8 +102,7 @@ def get_battery_level():
         batt_remaining = mo.group("remaining")
     f.close()
 
-    battery = (int(batt_remaining) * 100) / int(batt_capacity)
-    return battery
+    return (int(batt_remaining) * 100) / int(batt_capacity)
 
 def get_temperature_level():
     """
