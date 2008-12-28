@@ -17,8 +17,6 @@ temp_re = re.compile("^temperature:[ ]+(?P<temperature>[\d]+) C$")
 cpu_re = re.compile("^cpu MHz[\t ]+: (?P<cpu_speed>[\d]+)[.\d]*$")
 
 def handle():
-    battery_current = battery_full = temperature = cpuspeed = 0
-
     osd_batt = pyosd.osd()
     osd_temp = pyosd.osd()
     osd_cpu = pyosd.osd()
