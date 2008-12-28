@@ -1,0 +1,7 @@
+I created this small project for myself. This means that it is very coupled
+with my working environment and it may not work correctly or may not work at
+all on other environments.
+
+Anyway, if you're brave enough to download, use it and write patches to make
+it work on a broader platea, feel free to contact me or to push patches in
+this GIT tree.
