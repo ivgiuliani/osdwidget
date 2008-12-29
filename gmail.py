@@ -7,11 +7,13 @@ from settings import GMAIL_USER, GMAIL_PASS, GMAIL_CHECK_INTERVAL
 class GmailOsd(threading.Thread):
     def __init__(self, osd, *args, **kwargs):
         self.osd = osd
+        self.msg = ""
 
         super(GmailOsd, self).__init__(*args, **kwargs)
 
     def run(self):
-        self.osd.display("Connecting to GMail...")
+        self.msg = "Connecting to GMail..."
+        self.osd.display(self.msg)
 
         self.ga = libgmail.GmailAccount(GMAIL_USER, GMAIL_PASS)
 
@@ -23,6 +25,9 @@ class GmailOsd(threading.Thread):
         while True:
             self.gmail_check()
             time.sleep(GMAIL_CHECK_INTERVAL * 60)
+
+    def refresh(self):
+        self.osd.display(self.msg)
 
     def gmail_check(self):
         unread = self.ga.getUnreadMsgCount()
@@ -37,6 +42,8 @@ class GmailOsd(threading.Thread):
                 self.osd.set_colour("yellow")
 
             if unread == 1:
-                self.osd.display("You got one unread email")
+                self.msg = "You got one unread email"
             else:
-                self.osd.display("You got %d unread emails" % self.ga.getUnreadMsgCount())
+                self.msg = "You got %d unread emails" % self.ga.getUnreadMsgCount()
+
+            self.osd.display(self.msg)

@@ -64,6 +64,7 @@ def handle():
 
         osd_temp.display("Temperature: %d C" % temp)
         osd_cpu.display("CPU Speed: %dMHz" % cpu)
+        gmail.refresh()
 
         time.sleep(INTERVAL)
 
