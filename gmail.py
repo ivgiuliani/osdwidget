@@ -34,7 +34,7 @@ class GmailOsd(threading.Thread):
 
         self.osd.set_colour("green")
         if unread == 0:
-            self.osd.display("No unread emails!")
+            self.msg = "No unread emails!"
         else:
             if unread > 30:
                 self.osd.set_colour("red")
@@ -46,4 +46,4 @@ class GmailOsd(threading.Thread):
             else:
                 self.msg = "You got %d unread emails" % self.ga.getUnreadMsgCount()
 
-            self.osd.display(self.msg)
+        self.osd.display(self.msg)
