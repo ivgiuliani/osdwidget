@@ -20,7 +20,8 @@ class GmailOsd(threading.Thread):
         try:
             self.ga.login()
         except libgmail.GmailLoginFailure:
-            self.osd.display("GMail login failure!")
+            self.msg = "GMail login failure!"
+            self.osd.display(self.msg)
 
         while True:
             self.gmail_check()
