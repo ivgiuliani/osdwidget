@@ -9,12 +9,28 @@ def main():
             help="Run this program in background", default=False)
     (options, args) = parser.parse_args()
 
+    if not check():
+        return 1
+
     try:
         run(options.daemonize)
     except KeyboardInterrupt:
         pass
 
     return 0
+
+def check():
+    modules = (('python-osd', 'pyosd'), ('python-libgmail', 'libgmail'))
+    for module in modules:
+        mod_name, mod_imp = module
+
+        try:
+            __import__(mod_imp)
+        except ImportError:
+            sys.stderr.write("Unable to load %s. Can't start OSDWidget\n" % mod_name)
+            return False
+
+    return True
 
 def run(daemon=False):
     if daemon:
