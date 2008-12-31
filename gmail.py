@@ -19,22 +19,25 @@ class GMailWidget(BaseWidget):
     def get_msg(self):
         msg_count = self.check_thread.get_msg_count()
 
-        if msg_count == GMailCheck.CONNECTING:
-            return ("Connecting...", "yellow")
-        elif msg_count == GMailCheck.CONNECTION_FAILURE:
-            return ("Can't connect to GMail!", "red")
-        elif msg_count == GMailCheck.LOGIN_FAILURE:
-            return ("Can't login in GMail!", "red")
-        elif msg_count == 0:
-            return ("Empty inbox!", "green")
+        error_messages = {
+            GMailCheck.CONNECTING:          ("Connecting...", "yellow"),
+            GMailCheck.CONNECTION_FAILURE:  ("Can't connect to GMail!", "red"),
+            GMailCheck.LOGIN_FAILURE:       ("Can't login in GMail", "red")
+        }
+
+        if msg_count in error_messages.keys():
+            return error_messages[msg_count]
+
+        color = "green"
+        if msg_count == 0:
+            msg = "Empty inbox!"
         elif msg_count == 1:
-            return ("Got one unread message", "green")
-        elif 1 > msg_count >= 10:
-            return ("Got %d unread messages", "green")
-        elif 10 > msg_count >= 20:
-            return ("Got %d unread messages", "yellow")
+            msg = "Got one unread message"
         else:
-            return ("Got %d unread messages", "red")
+            if 10 > msg_count >= 20: color = "yellow"
+            elif msg_count > 20: color = "red"
+
+        return (msg, color)
 
 class GMailCheck(threading.Thread):
     # various constants
