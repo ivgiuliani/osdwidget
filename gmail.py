@@ -2,53 +2,69 @@ import time
 import threading
 import libgmail
 
-from settings import GMAIL_USER, GMAIL_PASS, GMAIL_CHECK_INTERVAL
+import settings
 from base import BaseWidget
 
 class GMailWidget(BaseWidget):
-    pass
+    def __init__(self):
+        super(GMailWidget, self).__init__()
+        self.set_horizontal_offset(350)
 
-class GmailOsd(threading.Thread):
-    def __init__(self, osd, *args, **kwargs):
-        self.osd = osd
-        self.msg = ""
+        self.username = settings.GMAIL_USER
+        self.password = settings.GMAIL_PASS
 
-        super(GmailOsd, self).__init__(*args, **kwargs)
+        self.check_thread = GMailCheck(self.username, self.password)
+        self.check_thread.start()
 
-    def run(self):
-        self.msg = "Connecting to GMail..."
-        self.osd.display(self.msg)
+    def get_msg(self):
+        msg_count = self.check_thread.get_msg_count()
 
-        self.ga = libgmail.GmailAccount(GMAIL_USER, GMAIL_PASS)
+        if msg_count == GMailCheck.CONNECTING:
+            return ("Connecting...", "yellow")
+        elif msg_count == GMailCheck.CONNECTION_FAILURE:
+            return ("Can't connect to GMail!", "red")
+        elif msg_count == GMailCheck.LOGIN_FAILURE:
+            return ("Can't login in GMail!", "red")
+        elif msg_count == 0:
+            return ("Empty inbox!", "green")
+        elif msg_count == 1:
+            return ("Got one unread message", "green")
+        elif 1 > msg_count >= 10:
+            return ("Got %d unread messages", "green")
+        elif 10 > msg_count >= 20:
+            return ("Got %d unread messages", "yellow")
+        else:
+            return ("Got %d unread messages", "red")
 
+class GMailCheck(threading.Thread):
+    # various constants
+    CONNECTING = -1
+    LOGIN_FAILURE = -2
+    CONNECTION_FAILURE = -3
+
+    def __init__(self, username, password, *args, **kwargs):
+        self.msg_count = self.CONNECTING
+        self.username = username
+        self.password = password
+
+        super(GMailCheck, self).__init__(*args, **kwargs)
+
+    def get_msg_count(self):
+        return self.msg_count
+
+    def gmail_login(self):
+        self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
         except libgmail.GmailLoginFailure:
-            self.msg = "GMail login failure!"
-            self.osd.display(self.msg)
+            return False
+        return True
+
+    def run(self):
+        if not self.gmail_login():
+            self.msg_count = self.LOGIN_FAILURE
+            return
 
         while True:
-            self.gmail_check()
-            time.sleep(GMAIL_CHECK_INTERVAL * 60)
-
-    def refresh(self):
-        self.osd.display(self.msg)
-
-    def gmail_check(self):
-        unread = self.ga.getUnreadMsgCount()
-
-        self.osd.set_colour("green")
-        if unread == 0:
-            self.msg = "No unread emails!"
-        else:
-            if unread > 30:
-                self.osd.set_colour("red")
-            elif unread > 15:
-                self.osd.set_colour("yellow")
-
-            if unread == 1:
-                self.msg = "You got one unread email"
-            else:
-                self.msg = "You got %d unread emails" % self.ga.getUnreadMsgCount()
-
-        self.osd.display(self.msg)
+            self.msg_count = self.ga.getUnreadMsgCount()
+            time.sleep(settings.GMAIL_CHECK_INTERVAL * 60)
