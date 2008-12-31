@@ -1,6 +1,7 @@
 import time
 import threading
 import libgmail
+import urllib2
 
 import settings
 from base import BaseWidget
@@ -41,14 +42,15 @@ class GMailWidget(BaseWidget):
 
 class GMailCheck(threading.Thread):
     # various constants
-    CONNECTING = -1
-    LOGIN_FAILURE = -2
-    CONNECTION_FAILURE = -3
+    CONNECTING          = -1
+    LOGIN_FAILURE       = -2
+    CONNECTION_FAILURE  = -3
 
     def __init__(self, username, password, *args, **kwargs):
         self.msg_count = self.CONNECTING
         self.username = username
         self.password = password
+        self.logged_in = False
 
         super(GMailCheck, self).__init__(*args, **kwargs)
 
@@ -59,15 +61,29 @@ class GMailCheck(threading.Thread):
         self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
-        except libgmail.GmailLoginFailure:
+        except (libgmail.GmailLoginFailure, urllib2.URLError):
             return False
+
+        self.logged_in = True
         return True
 
     def run(self):
-        if not self.gmail_login():
-            self.msg_count = self.LOGIN_FAILURE
-            return
-
+        """
+        Executes the actual checking
+        """
         while True:
-            self.msg_count = self.ga.getUnreadMsgCount()
+            if not self.logged_in:
+                if not self.gmail_login():
+                    self.msg_count = self.LOGIN_FAILURE
+
+            # if we logged in correctly or were already logged in
+            if self.logged_in:
+                try:
+                    self.msg_count = self.ga.getUnreadMsgCount()
+                except urllib2.URLError:
+                    # we may lose the connection, so try to login once
+                    # again next time
+                    self.logged_in = False
+                    self.msg_count = self.CONNECTION_FAILURE
+
             time.sleep(settings.GMAIL_CHECK_INTERVAL * 60)
