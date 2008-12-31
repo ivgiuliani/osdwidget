@@ -27,12 +27,26 @@ class BaseWidget(object):
         self.msg = (text, color)
 
     def get_msg(self):
+        """
+        Returns the tuple in the format (message, color) where message
+        is the text that should be shown on OSD and color the text's
+        color.
+
+        In most cases, when extending this class you may want to override
+        only this method.
+        """
         return self.msg
 
     def display(self):
+        """
+        Display the text through OSD
+        """
         msg = self.get_msg()
         self.osd.set_colour(msg[1])
         self.osd.display(msg[0])
 
     def set_horizontal_offset(self, offset):
+        """
+        Set the OSD horizontal offset
+        """
         self.osd.set_horizontal_offset(offset)

@@ -58,6 +58,9 @@ class GMailCheck(threading.Thread):
         return self.msg_count
 
     def gmail_login(self):
+        """
+        Log into GMail
+        """
         self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
@@ -69,7 +72,7 @@ class GMailCheck(threading.Thread):
 
     def run(self):
         """
-        Executes the actual checking
+        Executes the actual email check
         """
         while True:
             if not self.logged_in:
