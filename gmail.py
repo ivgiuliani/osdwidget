@@ -3,6 +3,10 @@ import threading
 import libgmail
 
 from settings import GMAIL_USER, GMAIL_PASS, GMAIL_CHECK_INTERVAL
+from base import BaseWidget
+
+class GMailWidget(BaseWidget):
+    pass
 
 class GmailOsd(threading.Thread):
     def __init__(self, osd, *args, **kwargs):
