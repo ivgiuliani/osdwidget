@@ -12,11 +12,9 @@ def handle():
     osd_temp = widget.TemperatureWidget()
     osd_cpu = widget.CPUWidget()
 
-    while True:
-        osd_batt.display()
-        osd_temp.display()
-        osd_cpu.display()
-        osd_gmail.display()
+    widgets = [ osd_gmail, osd_batt, osd_temp, osd_cpu ]
 
+    while True:
+        [osd.display() for osd in widgets]
         time.sleep(settings.INTERVAL)
 
