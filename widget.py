@@ -87,14 +87,16 @@ class TemperatureWidget(BaseWidget):
         """
         Returns the current temperature in Celsius
         """
+        temp = 0
+
         f = open(TEMPERATURE, "r")
         line = f.readline().strip()
+        f.close()
+
         mo = self.temp_re.match(line)
+
         if mo:
             temp = int(mo.group("temperature"))
-        else:
-            temp = 0
-        f.close()
     
         return temp
     
