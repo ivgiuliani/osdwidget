@@ -1,11 +1,31 @@
+# Battery info file (we need this so we can know if the battery is
+# inserted or it isn't)
 BAT_INFO = "/proc/acpi/battery/BAT0/info"
+
+# Battery state file (we get remaining capacity from this file)
 BAT_STATE = "/proc/acpi/battery/BAT0/state"
+
+# CPU Temperature file
 TEMPERATURE = "/proc/acpi/thermal_zone/THM0/temperature"
+
+# CPUinfo
 CPUSPEED = "/proc/cpuinfo"
+
+# The font will be using
 FONT_FACE = "-*-fixed-medium-r-*-*-12-*-*-*-*-*-*-*"
+
+# Update interval
 INTERVAL = 5
 
+
+# Gmail options
+
+# Gmail username
 GMAIL_USER = 'gmailaccount@gmail.com'
+
+# Gmail password
 GMAIL_PASS = 'yourgmailpassword'
+
+# Check emails every X minutes
 GMAIL_CHECK_INTERVAL = 5	# minutes
 
