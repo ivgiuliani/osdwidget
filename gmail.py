@@ -52,6 +52,11 @@ class GMailCheck(threading.Thread):
         self.username = username
         self.password = password
         self.logged_in = False
+        self.use_proxy = False
+
+        if settings.PROXY_HOST and settings.PROXY_PORT:
+            libgmail.PROXY_URL = "%s:%s" % (settings.PROXY_HOST, settings.PROXY_PORT)
+            self.use_proxy = True
 
         super(GMailCheck, self).__init__(*args, **kwargs)
 
