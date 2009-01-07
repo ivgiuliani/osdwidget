@@ -54,23 +54,41 @@ class GMailCheck(threading.Thread):
         self.logged_in = False
         self.use_proxy = False
 
-        if settings.PROXY_HOST and settings.PROXY_PORT:
-            libgmail.PROXY_URL = "%s:%s" % (settings.PROXY_HOST, settings.PROXY_PORT)
-            self.use_proxy = True
-
         super(GMailCheck, self).__init__(*args, **kwargs)
 
     def get_msg_count(self):
         return self.msg_count
 
+    def gmail_connect(self):
+        "Connect to GMail"
+        if settings.FALLBACK_PROXY:
+            try:
+                self.ga = libgmail.GmailAccount(self.username, self.password)
+                return True
+            except urllib2.URLError:
+                if settings.PROXY_HOST and settings.PROXY_PORT:
+                    libgmail.PROXY_URL = "%s:%s" % (settings.PROXY_HOST, settings.PROXY_PORT)
+                    self.use_proxy = True
+        else:
+            if settings.PROXY_HOST and settings.PROXY_PORT:
+                libgmail.PROXY_URL = "%s:%s" % (settings.PROXY_HOST, settings.PROXY_PORT)
+                self.use_proxy = True
+
+        try:
+            self.ga = libgmail.GmailAccount(self.username, self.password)
+        except urllib2.URLError:
+            return False
+        return True
+
+
     def gmail_login(self):
         """
         Log into GMail
         """
-        self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
-        except (libgmail.GmailLoginFailure, urllib2.URLError):
+        except libgmail.GmailLoginFailure:
+            self.logged_in = False
             return False
 
         self.logged_in = True
@@ -80,6 +98,8 @@ class GMailCheck(threading.Thread):
         """
         Executes the actual email check
         """
+        self.gmail_connect()
+
         while True:
             if not self.logged_in:
                 if not self.gmail_login():
