@@ -1,12 +1,15 @@
 import time
 import re
 import pyosd
+import socket
 
 import settings
 import widget
 import gmail
 
 def handle():
+    socket.setdefaulttimeout(10)
+
     osd_gmail = gmail.GMailWidget()
     osd_batt = widget.BatteryWidget()
     osd_temp = widget.TemperatureWidget()
