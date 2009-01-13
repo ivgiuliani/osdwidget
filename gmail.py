@@ -65,7 +65,7 @@ class GMailCheck(threading.Thread):
         self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
-        except (libgmail.GmailLoginFailure, urllib2.URLError):
+        except (libgmail.GmailLoginFailure, urllib2.URLError, urllib2.httplib.BadStatusLine):
             return False
 
         self.logged_in = True
