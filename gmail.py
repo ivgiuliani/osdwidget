@@ -84,7 +84,7 @@ class GMailCheck(threading.Thread):
             if self.logged_in:
                 try:
                     self.msg_count = self.ga.getUnreadMsgCount()
-                except urllib2.URLError:
+                except (urllib2.URLError, urllib2.httplib.BadStatusLine):
                     # we may lose the connection, so try to login once
                     # again next time
                     self.logged_in = False
