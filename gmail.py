@@ -36,7 +36,7 @@ class GMailWidget(BaseWidget):
             msg = "Got one unread message"
         else:
             msg = "Got %d unread messages" % msg_count
-            if 10 < msg_count <= 20: color = "yellow"
+            if 10 < msg_count <= 25: color = "yellow"
             elif msg_count > 20: color = "red"
 
         return (msg, color)
