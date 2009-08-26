@@ -9,11 +9,10 @@ class BaseWidget(object):
     """
 
     def __init__(self):
-        osd = pyosd.osd()
+        osd = pyosd.osd(font=FONT_FACE)
         self.msg = ""
 
         # set common stuff
-        osd.set_font(FONT_FACE)
         osd.set_outline_offset(1)
         osd.set_timeout(0)
         osd.set_vertical_offset(2)
