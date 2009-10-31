@@ -4,11 +4,9 @@ import pyosd
 
 import settings
 import widget
-import gmail
 
 def handle():
     w = {
-        'gmail':    gmail.GMailWidget,
         'batt':     widget.BatteryWidget,
         'temp':     widget.TemperatureWidget,
         'cpu':      widget.CPUWidget,

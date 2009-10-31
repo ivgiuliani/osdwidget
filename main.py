@@ -20,7 +20,7 @@ def main():
     return 0
 
 def check():
-    modules = (('python-osd', 'pyosd'), ('python-libgmail', 'libgmail'))
+    modules = (('python-osd', 'pyosd'), )
     for module in modules:
         mod_name, mod_imp = module
 
